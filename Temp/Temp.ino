@@ -67,7 +67,7 @@ void loop() {
   Serial.print("Temp: "); Serial.print(c); Serial.print("*C\t"); 
   Serial.print(f); Serial.println("*F");
   String tempInC = String(c);
-  tftDrawText(tempInC, ST77XX_WHITE);
+  tftDrawText(tempInC, ST77XX_GREEN);
   delay(1000);
 }
 
