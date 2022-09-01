@@ -75,6 +75,7 @@ void tftDrawText(String text, uint16_t color) {
   tft.setCursor(0, 0);
   tft.setTextSize(5);
   tft.setTextColor(color);
+  tft.fillScreen(ST77XX_BLACK);
   tft.setTextWrap(true);
   tft.print(text);
 }
