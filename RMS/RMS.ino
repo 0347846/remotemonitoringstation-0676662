@@ -3,6 +3,7 @@
 #define FORMAT_SPIFFS_IF_FAILED true
 
 // Wifi & Webserver
+#include <ESP32Servo.h>
 #include "WiFi.h"
 #include "SPIFFS.h"
 #include <AsyncTCP.h>
@@ -17,6 +18,9 @@ Adafruit_MotorShield AFMS = Adafruit_MotorShield();
 Adafruit_DCMotor *myMotor = AFMS.getMotor(1);
 
 AsyncWebServer server(80);
+Servo myservo;  // create servo object to control a servo
+int servoPin = 12;
+boolean blindsOpen = false;
 
 
 // RTC Start - Remove if unnecessary
@@ -154,6 +158,15 @@ void setup() {
 
   AFMS.begin();
 
+  // ESP32Servo Start
+  ESP32PWM::allocateTimer(0);
+  ESP32PWM::allocateTimer(1);
+  ESP32PWM::allocateTimer(2);
+  ESP32PWM::allocateTimer(3);
+  myservo.setPeriodHertz(50);    // standard 50 hz servo
+  myservo.attach(servoPin, 1000, 2000); // attaches the servo on pin 18 to the servo object
+  // ESP32Servo End
+
   Serial.print("Offset is "); Serial.println(offset); // Print to control offset
 }
 
@@ -162,7 +175,7 @@ void loop() {
 
   builtinLED();
   updateTemperature();
-  autoFan(50.0);
+  automaticFan(20.0);
   delay(LOOPDELAY); // To allow time to publish new code.
   // Read and print out the temperature, then convert to *F
 
@@ -265,11 +278,26 @@ void updateTemperature() {
   delay(100);
 }
 
-void autoFan (float temperatureThreshold) {
+void automaticFan(float temperatureThreshold) {
   float c = tempsensor.readTempC();
   myMotor->setSpeed(100);
   if (c < temperatureThreshold) {
     myMotor->run(RELEASE);
+    Serial.println("stop");
   } else {
     myMotor->run(FORWARD);
+    Serial.println("forward");
   }
+}
+
+void windowBlinds() {
+  uint32_t buttons = ss.readButtons();
+  if (! (buttons & TFTWING_BUTTON_A)) {
+    if (blindsOpen) {
+      myservo.write(0);
+    } else {
+      myservo.write(180);
+    }
+    blindsOpen = !blindsOpen;
+  }
+}
