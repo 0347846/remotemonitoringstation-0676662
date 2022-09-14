@@ -1,7 +1,20 @@
 #include "sensitiveInformation.h"
 
 #define FORMAT_SPIFFS_IF_FAILED true
+#define LEDRed 27
+#define LEDGreen 33
+// RFID Start
 
+#include <SPI.h>
+#include <MFRC522.h>
+
+#define SS_PIN  21  // ES32 Feather
+#define RST_PIN 17 // esp32 Feather - SCL pin. Could be others.
+
+MFRC522 rfid(SS_PIN, RST_PIN);
+bool safeLocked = true;
+
+// RFID End
 // Wifi & Webserver
 #include <ESP32Servo.h>
 #include "WiFi.h"
@@ -15,7 +28,7 @@
 #include "Adafruit_miniTFTWing.h"
 #include <Adafruit_MotorShield.h>
 Adafruit_MotorShield AFMS = Adafruit_MotorShield();
-Adafruit_DCMotor *myMotor = AFMS.getMotor(1);
+Adafruit_DCMotor *myMotor = AFMS.getMotor(4);
 
 AsyncWebServer server(80);
 Servo myservo;  // create servo object to control a servo
@@ -168,6 +181,15 @@ void setup() {
   // ESP32Servo End
 
   Serial.print("Offset is "); Serial.println(offset); // Print to control offset
+  
+  // RFID Start
+SPI.begin(); // init SPI bus
+rfid.PCD_Init(); // init MFRC522
+// RFID End
+pinMode(LEDRed, OUTPUT);
+pinMode(LEDGreen, OUTPUT);
+digitalWrite(LEDRed, LOW);
+digitalWrite(LEDGreen, LOW);
 }
 
 
@@ -176,6 +198,7 @@ void loop() {
   builtinLED();
   updateTemperature();
   automaticFan(20.0);
+  windowBlinds();
   delay(LOOPDELAY); // To allow time to publish new code.
   // Read and print out the temperature, then convert to *F
 
@@ -280,7 +303,7 @@ void updateTemperature() {
 
 void automaticFan(float temperatureThreshold) {
   float c = tempsensor.readTempC();
-  myMotor->setSpeed(100);
+  myMotor->setSpeed(100); 
   if (c < temperatureThreshold) {
     myMotor->run(RELEASE);
     Serial.println("stop");
@@ -299,5 +322,48 @@ void windowBlinds() {
       myservo.write(180);
     }
     blindsOpen = !blindsOpen;
+  }
+}
+
+void safeStatusDisplay() {
+  /*
+     Outputs the status of the Safe Lock to the LEDS
+     Red LED = Locked
+     Green LED = Unlocked.
+  */
+  if (safeLocked) {
+    digitalWrite(LEDRed, HIGH);
+    digitalWrite(LEDGreen, LOW);
+  } else {
+    digitalWrite(LEDRed, LOW);
+    digitalWrite(LEDGreen, HIGH);
+  }
+}
+
+void readRFID() {
+
+  String uidOfCardRead = "";
+  String validCardUID = "00 232 81 25";
+
+  if (rfid.PICC_IsNewCardPresent()) { // new tag is available
+    if (rfid.PICC_ReadCardSerial()) { // NUID has been readed
+      MFRC522::PICC_Type piccType = rfid.PICC_GetType(rfid.uid.sak);
+      for (int i = 0; i < rfid.uid.size; i++) {
+        uidOfCardRead += rfid.uid.uidByte[i] < 0x10 ? " 0" : " ";
+        uidOfCardRead += rfid.uid.uidByte[i];
+      }
+      Serial.println(uidOfCardRead);
+
+      rfid.PICC_HaltA(); // halt PICC
+      rfid.PCD_StopCrypto1(); // stop encryption on PCD
+      uidOfCardRead.trim();
+      if (uidOfCardRead == validCardUID) {
+        safeLocked = false;
+        logEvent("Safe Unlocked");
+      } else {
+        safeLocked = true;
+        logEvent("Safe Locked");
+      }
+    }
   }
 }
