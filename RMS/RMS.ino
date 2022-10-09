@@ -325,20 +325,7 @@ void windowBlinds() {
   }
 }
 
-void safeStatusDisplay() {
-  /*
-     Outputs the status of the Safe Lock to the LEDS
-     Red LED = Locked
-     Green LED = Unlocked.
-  */
-  if (safeLocked) {
-    digitalWrite(LEDRed, HIGH);
-    digitalWrite(LEDGreen, LOW);
-  } else {
-    digitalWrite(LEDRed, LOW);
-    digitalWrite(LEDGreen, HIGH);
-  }
-}
+
 
 void readRFID() {
 
@@ -365,5 +352,20 @@ void readRFID() {
         logEvent("Safe Locked");
       }
     }
+  }
+}
+
+void safeStatusDisplay() {
+  /*
+     Outputs the status of the Safe Lock to the LEDS
+     Red LED = Locked
+     Green LED = Unlocked.
+  */
+  if (safeLocked) {
+    digitalWrite(LEDRed, HIGH);
+    digitalWrite(LEDGreen, LOW);
+  } else {
+    digitalWrite(LEDRed, LOW);
+    digitalWrite(LEDGreen, HIGH);
   }
 }
