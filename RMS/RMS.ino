@@ -1,8 +1,8 @@
 #include "sensitiveInformation.h"
 
 #define FORMAT_SPIFFS_IF_FAILED true
-#define LEDRed 27
-#define LEDGreen 33
+#define LEDRed 33
+#define LEDGreen 27
 // RFID Start
 
 #include <SPI.h>
