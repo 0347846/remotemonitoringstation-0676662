@@ -35,6 +35,13 @@ Servo myservo;  // create servo object to control a servo
 int servoPin = 12;
 boolean blindsOpen = false;
 
+bool fanEnabled = false;            // If the fan is on or off.
+bool automaticFanControl = true;    // Automatic or manual control
+
+unsigned long previousMillis = 0;        // will store last time LED was updated
+
+// constants won't change:
+const long interval = 1000;           // interval at which to blink (milliseconds)
 
 // RTC Start - Remove if unnecessary
 #include "RTClib.h"
@@ -103,12 +110,23 @@ void setup() {
   WiFi.begin(ssid, password);
   while (WiFi.status() != WL_CONNECTED) {
     delay(1000);
-    Serial.println("Connecting to WiFi..");
+    tftDrawText("Connecting to WiFi..", ST77XX_RED);
   }
+  tft.fillScreen(ST77XX_BLACK);
+
   Serial.println();
   Serial.print("Connected to the Internet");
   Serial.print("IP address: ");
   Serial.println(WiFi.localIP());
+  String ip = WiFi.localIP().toString();
+  Serial.println(ip);
+
+  // Display IP on TFT
+  tft.setCursor(0, 60);
+  tft.setTextSize(2);
+  tft.setTextColor(ST77XX_WHITE, ST77XX_BLACK);
+  tft.setTextWrap(true);
+  tft.print(ip);
 
   routesConfiguration(); // Reads routes from routesManagement
 
@@ -181,15 +199,15 @@ void setup() {
   // ESP32Servo End
 
   Serial.print("Offset is "); Serial.println(offset); // Print to control offset
-  
+
   // RFID Start
-SPI.begin(); // init SPI bus
-rfid.PCD_Init(); // init MFRC522
-// RFID End
-pinMode(LEDRed, OUTPUT);
-pinMode(LEDGreen, OUTPUT);
-digitalWrite(LEDRed, LOW);
-digitalWrite(LEDGreen, LOW);
+  SPI.begin(); // init SPI bus
+  rfid.PCD_Init(); // init MFRC522
+  // RFID End
+  pinMode(LEDRed, OUTPUT);
+  pinMode(LEDGreen, OUTPUT);
+  digitalWrite(LEDRed, LOW);
+  digitalWrite(LEDGreen, LOW);
 }
 
 
@@ -197,8 +215,10 @@ void loop() {
 
   builtinLED();
   updateTemperature();
-  automaticFan(20.0);
+  fanControl();
   windowBlinds();
+  safeStatusDisplay();
+  readRFID();
   delay(LOOPDELAY); // To allow time to publish new code.
   // Read and print out the temperature, then convert to *F
 
@@ -283,9 +303,8 @@ void logEvent(String dataToLog) {
 
 void tftDrawText(String text, uint16_t color) {
   tft.setCursor(0, 0);
-  tft.setTextSize(5);
-  tft.setTextColor(color);
-  tft.fillScreen(ST77XX_BLACK);
+  tft.setTextSize(3);
+  tft.setTextColor(color, ST77XX_BLACK);
   tft.setTextWrap(true);
   tft.print(text);
 }
@@ -303,13 +322,11 @@ void updateTemperature() {
 
 void automaticFan(float temperatureThreshold) {
   float c = tempsensor.readTempC();
-  myMotor->setSpeed(100); 
+  myMotor->setSpeed(100);
   if (c < temperatureThreshold) {
-    myMotor->run(RELEASE);
-    Serial.println("stop");
+    fanEnabled = false;
   } else {
-    myMotor->run(FORWARD);
-    Serial.println("forward");
+    fanEnabled = true;
   }
 }
 
@@ -325,12 +342,22 @@ void windowBlinds() {
   }
 }
 
+void fanControl() {
+  if (automaticFanControl) {
+    automaticFan(25.0);
+  }
+  if (fanEnabled) {
+    myMotor->run(FORWARD);
+  } else {
+    myMotor->run(RELEASE);
+  }
+}
 
 
 void readRFID() {
 
   String uidOfCardRead = "";
-  String validCardUID = "00 232 81 25";
+  String validCardUID = "09 247 31 201";
 
   if (rfid.PICC_IsNewCardPresent()) { // new tag is available
     if (rfid.PICC_ReadCardSerial()) { // NUID has been readed
@@ -369,3 +396,20 @@ void safeStatusDisplay() {
     digitalWrite(LEDGreen, HIGH);
   }
 }
+
+void safeDelay() {
+
+  unsigned long currentMillis = millis();
+
+  if (currentMillis - previousMillis >= interval) {
+    // save the last time you blinked the LED
+    previousMillis = currentMillis;
+
+    if (LEDGreen == LOW) { 
+      delay(1000)
+    }
+  }
+}
+
+
+  
