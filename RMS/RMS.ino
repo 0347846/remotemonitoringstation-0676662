@@ -313,7 +313,8 @@ void updateTemperature() {
   // Read and print out the temperature, then convert to *F
   float c = tempsensor.readTempC();
   float f = c * 9.0 / 5.0 + 32;
-  Serial.print("Temp: "); Serial.print(c); Serial.print("*C\t");
+  // Serial.print("Temp: "); Serial.print(c); Serial.print("*C\t");
+  // 
   Serial.print(f); Serial.println("*F");
   String tempInC = String(c);
   tftDrawText(tempInC, ST77XX_WHITE);
@@ -324,9 +325,11 @@ void automaticFan(float temperatureThreshold) {
   float c = tempsensor.readTempC();
   myMotor->setSpeed(100);
   if (c < temperatureThreshold) {
+
     fanEnabled = false;
   } else {
     fanEnabled = true;
+  
   }
 }
 
@@ -344,7 +347,7 @@ void windowBlinds() {
 
 void fanControl() {
   if (automaticFanControl) {
-    automaticFan(25.0);
+    automaticFan(30.0);
   }
   if (fanEnabled) {
     myMotor->run(FORWARD);
@@ -394,22 +397,5 @@ void safeStatusDisplay() {
   } else {
     digitalWrite(LEDRed, LOW);
     digitalWrite(LEDGreen, HIGH);
-  }
 }
-
-void safeDelay() {
-
-  unsigned long currentMillis = millis();
-
-  if (currentMillis - previousMillis >= interval) {
-    // save the last time you blinked the LED
-    previousMillis = currentMillis;
-
-    if (LEDGreen == LOW) { 
-      delay(1000)
-    }
-  }
 }
-
-
-  
