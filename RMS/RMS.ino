@@ -1,10 +1,10 @@
 #include "sensitiveInformation.h"
 
 #define FORMAT_SPIFFS_IF_FAILED true
-#define LEDRed 33
-#define LEDGreen 27
-// RFID Start
-
+int LEDGreen = 27;
+int LEDRed = 33;
+static unsigned char ledState = LOW;
+  static unsigned long ledCameOn = 0;
 #include <SPI.h>
 #include <MFRC522.h>
 
@@ -208,6 +208,8 @@ void setup() {
   pinMode(LEDGreen, OUTPUT);
   digitalWrite(LEDRed, LOW);
   digitalWrite(LEDGreen, LOW);
+
+
 }
 
 
@@ -218,7 +220,9 @@ void loop() {
   fanControl();
   windowBlinds();
   safeStatusDisplay();
-  readRFID();
+  readRFID();;
+
+
   delay(LOOPDELAY); // To allow time to publish new code.
   // Read and print out the temperature, then convert to *F
 
@@ -313,8 +317,8 @@ void updateTemperature() {
   // Read and print out the temperature, then convert to *F
   float c = tempsensor.readTempC();
   float f = c * 9.0 / 5.0 + 32;
-  // Serial.print("Temp: "); Serial.print(c); Serial.print("*C\t");
-  // 
+     Serial.print("Temp: "); Serial.print(c); Serial.print("*C\t");
+    
   Serial.print(f); Serial.println("*F");
   String tempInC = String(c);
   tftDrawText(tempInC, ST77XX_WHITE);
@@ -329,7 +333,7 @@ void automaticFan(float temperatureThreshold) {
     fanEnabled = false;
   } else {
     fanEnabled = true;
-  
+
   }
 }
 
@@ -347,7 +351,7 @@ void windowBlinds() {
 
 void fanControl() {
   if (automaticFanControl) {
-    automaticFan(30.0);
+    automaticFan(25.0);
   }
   if (fanEnabled) {
     myMotor->run(FORWARD);
@@ -397,5 +401,16 @@ void safeStatusDisplay() {
   } else {
     digitalWrite(LEDRed, LOW);
     digitalWrite(LEDGreen, HIGH);
+  }
 }
+void autoSafeLock() {
+
+if (LEDGreen == HIGH) {
+
+  if (millis() - ledCameOn > 5000) {
+  
+    digitalWrite(LEDGreen, LOW);
+    LEDGreen = LOW;
+  }
 }
+} 
