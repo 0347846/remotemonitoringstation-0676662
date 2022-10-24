@@ -351,7 +351,7 @@ void windowBlinds() {
 
 void fanControl() {
   if (automaticFanControl) {
-    automaticFan(25.0);
+    automaticFan(25.0); 
   }
   if (fanEnabled) {
     myMotor->run(FORWARD);
