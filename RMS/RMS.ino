@@ -1,5 +1,5 @@
 #include "sensitiveInformation.h"
-
+float fanTemperatureThreshold = 25.0;
 #define FORMAT_SPIFFS_IF_FAILED true
 int LEDGreen = 27;
 int LEDRed = 33;
@@ -153,14 +153,7 @@ void setup() {
   }
   else logEvent("seesaw started");
 
-  ss.tftReset();
-  ss.setBacklight(0x0); //set the backlight fully on
 
-  // Use this initializer (uncomment) if you're using a 0.96" 180x60 TFT
-  tft.initR(INITR_MINI160x80);   // initialize a ST7735S chip, mini display
-
-  tft.setRotation(1);
-  tft.fillScreen(ST77XX_BLACK);
 
   // MiniTFT End
 
@@ -317,9 +310,9 @@ void updateTemperature() {
   // Read and print out the temperature, then convert to *F
   float c = tempsensor.readTempC();
   float f = c * 9.0 / 5.0 + 32;
-     Serial.print("Temp: "); Serial.print(c); Serial.print("*C\t");
+     // Serial.print("Temp: "); Serial.print(c); Serial.print("*C\t");
     
-  Serial.print(f); Serial.println("*F");
+ // Serial.print(f); Serial.println("*F");
   String tempInC = String(c);
   tftDrawText(tempInC, ST77XX_WHITE);
   delay(100);
@@ -351,7 +344,7 @@ void windowBlinds() {
 
 void fanControl() {
   if (automaticFanControl) {
-    automaticFan(25.0); 
+  automaticFan(fanTemperatureThreshold);
   }
   if (fanEnabled) {
     myMotor->run(FORWARD);

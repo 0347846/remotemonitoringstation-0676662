@@ -2,12 +2,12 @@
     display: grid;
     grid-template-columns: auto auto;
     grid-gap: 10px;
-    background-color: #40b973;
+    background-color: #A0A0A0;
     padding: 10px;
 }
 
 .grid-container > div {
-    background-color: rgba(255, 255, 255, 0.8);
+    background-color: #ffffff;
     text-align: center;
     padding: 20px 0;
     font-size: 20px;
@@ -23,12 +23,12 @@
 }
 
 body {
-    background-color: lightcyan;
+    background-color: #A0A0A0;
     /*color: blue;*/
 }
 
 h1 {
-    background-color: green;
+    background-color: #383838;
     color: white;
     text-align: center;
 }
@@ -60,6 +60,23 @@ li a:hover {
     background-color: #111;
 }
 
-.active {
-    background-color: #04AA6D;
+.activeguest {
+    background-color: #9e9cfd;
+}
+
+.activeadmin {
+    background-color: #70002b;
+}
+
+.guest {
+    background-color: #9e9cfd;
+}
+
+.admin {
+    background-color: #70002b;
+}
+
+.adminbanner {
+    grid-column-start: 1;
+    grid-column-end: 3;
 }

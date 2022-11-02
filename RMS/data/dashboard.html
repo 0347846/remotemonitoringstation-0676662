@@ -11,14 +11,15 @@
 <nav>
     <ul>
         <li><a href="index.html">Home</a></li>
-        <li class="active"><a href="/dashboard.html">Dashboard</a></li>
+        <li class="activeguest"><a href="/dashboard.html">Dashboard</a></li>
+        <li><a href="/admin.html">Admin</a></li>
     </ul>
 </nav>
 
-<h1>Status Dashboard</h1>
+<h1>Welcome to the floating hotel!</h1>
 
-<div class="grid-container">
-    <div class="banner">Hotel Room</div>
+<div class="grid-container guest">
+    <div class="banner">Room 102</div>
     <div>
         <p>Date and Time </p>
         <p>%DATETIME% *</p>
@@ -30,22 +31,14 @@
     <div>
         <p><a href="/SafeLock">Lock Safe</a></p>
         <p><a href="/SafeUnlock">Unlock Safe</a></p>
-    <div></div>
-    <div>LogEvents<p><a href="/logOutput">Download</a></div>
-    <div>
-        <p><a href="/LEDOn">Turn LED On</a></p>
-        <p><a href="/LEDOff">Turn LED Off</a></p>
     </div>
-<div><div>
+<div>
     <p>Fan Control</p>
     <p>%FANCONTROL%</p>
     <p><a href="/FanManualOn">Turn Fan On</a></p>
     <p><a href="/FanManualOff">Turn Fan Off</a></p>
     <p><a href="/FanControl">Fan Automatic/Manual</a></p>
 </div>
-
-
-<sup class="tinyText">* Example of HTML/Arduino Variable</sup>
 
 
 </body>

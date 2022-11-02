@@ -11,39 +11,46 @@
 <nav>
     <ul>
         <li><a href="index.html">Home</a></li>
-        <li class="active"><a href="/admin.html">Admin</a></li>
+        <li><a href="/dashboard.html">Dashboard</a></li>
+        <li class="activeadmin"><a href="/admin.html">Admin</a></li>
     </ul>
 </nav>
 
 <h1>Status Dashboard</h1>
 
-<div class="grid-container">
-    <div class="banner">Hotel Room</div>
+<div class="grid-container admin">
+    <div class="adminbanner">ADMINS ONLY</div>
     <div>
-        <p>Date and Time </p>
-        <p>%DATETIME% *</p>
+        <p>Set Temperature Threshold</p>
+        <form action="/setTemperatureThreshold">
+            Temperature Threshold <br>
+            <input type="number" name="tempThreshold" value="%CURRENTTHRESHOLD%">
+            <input type="submit" value="Submit">
+        </form><br>
     </div>
     <div>
         <p>Current Temperature</p>
         <p>%TEMPERATURE%</p>
     </div>
-    <div>
-        <p><a href="/SafeLock">Lock Safe</a></p>
-        <p><a href="/SafeUnlock">Unlock Safe</a></p>
-    <div></div>
     <div>LogEvents<p><a href="/logOutput">Download</a></div>
     <div>
         <p><a href="/LEDOn">Turn LED On</a></p>
         <p><a href="/LEDOff">Turn LED Off</a></p>
     </div>
-<div><div>
+<div>
     <p>Fan Control</p>
     <p>%FANCONTROL%</p>
     <p><a href="/FanManualOn">Turn Fan On</a></p>
     <p><a href="/FanManualOff">Turn Fan Off</a></p>
     <p><a href="/FanControl">Fan Automatic/Manual</a></p>
+</div> 
+<div>
+    <p>%SAFESTATUS%</p>
+    <p><a href="/SafeLockAdmin">Lock Safe</a></p>
+    <p><a href="/SafeUnlockAdmin">Unlock Safe</a></p>
+  </div>
+  
 </div>
-
 
 <sup class="tinyText">* Example of HTML/Arduino Variable</sup>
 
